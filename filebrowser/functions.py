@@ -42,7 +42,7 @@ def path_to_url(value):
     """
     Change PATH to URL.
     Value has to be a PATH relative to MEDIA_ROOT.
-    
+
     Return an URL relative to MEDIA_ROOT.
     """
 
@@ -69,7 +69,7 @@ def get_version_path(value, version_prefix):
     """
     Construct the PATH to an Image version.
     Value has to be server-path, relative to MEDIA_ROOT.
-    
+
     version_filename = filename + version_prefix + ext
     Returns a path relative to MEDIA_ROOT.
     """
@@ -77,7 +77,7 @@ def get_version_path(value, version_prefix):
     if os.path.isfile(smart_str(os.path.join(fb_settings.MEDIA_ROOT, value))):
         path, filename = os.path.split(value)
         filename, ext = os.path.splitext(filename)
-        
+
         # check if this file is a version of an other file
         # to return filename_<version>.ext instead of
         # filename_<version>_<version>.ext
@@ -127,25 +127,23 @@ def sort_by_attr(seq, attr):
     # (which can be expensive or prohibited) in case of equal attribute values.
 
     if _ver >= (3, 0):
-        intermed = map(
-            None,
+        intermed = itertools.zip_longest(
             map(
                 getattr,
                 seq,
-                (attr,)*len(seq)
+                (attr,) * len(seq)
             ),
-            itertools.zip_longest(range(len(seq)), seq)
+            range(len(seq)),
+            seq
         )
         try:
             intermed = sorted(intermed)
-            # does this actually DO anything?
-            print(intermed)
             return list(map(operator.getitem, intermed, (-1,) * len(intermed)))
         except TypeError:
             return seq
     else:
         intermed = map(
-            None, map(getattr, seq, (attr,)*len(seq)), range(len(seq)), seq
+            None, map(getattr, seq, (attr,) * len(seq)), range(len(seq)), seq
         )
         intermed.sort()
         return map(operator.getitem, intermed, (-1,) * len(intermed))
@@ -357,7 +355,7 @@ def scale_and_crop(im, width, height, opts):
     """
     Scale and Crop.
     """
-    
+
     x, y = [float(v) for v in im.size]
     if width:
         xr = float(width)
@@ -367,15 +365,15 @@ def scale_and_crop(im, width, height, opts):
         yr = float(height)
     else:
         yr = float(y * width / x)
-    
+
     if 'crop' in opts:
         r = max(xr / x, yr / y)
     else:
         r = min(xr / x, yr / y)
-    
+
     if r < 1.0 or (r > 1.0 and 'upscale' in opts):
         im = im.resize((int(x * r), int(y * r)), resample=Image.ANTIALIAS)
-    
+
     if 'crop' in opts:
         x, y = [float(v) for v in im.size]
         ex, ey = (x - min(x, xr)) / 2, (y - min(y, yr)) / 2
