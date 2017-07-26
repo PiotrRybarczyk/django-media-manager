@@ -36,6 +36,7 @@ from filebrowser.functions import (
 from filebrowser.templatetags.fb_tags import query_helper
 from filebrowser.base import FileObject
 from filebrowser.forms import MakeDirForm, RenameForm
+from filebrowser.utils import types_map as additional_mimetypes
 
 # Precompile regular expressions
 filter_re = []
@@ -298,7 +299,10 @@ def upload(request):
             try:
                 accepted_files.add(mimetypes.types_map[ext])
             except KeyError:
-                pass
+                try:
+                    accepted_files.add(additional_mimetypes[ext])
+                except KeyError:
+                    pass
 
     return render(request, _template() + 'upload.html', {
         'query': query,
